@@ -1,14 +1,25 @@
 import Vue from 'vue'
-import App from './App.vue';
-import VueRouter from 'vue-router';
-import routes from './routes';
+import App from './App.vue'
+import router from './router'
+import store from './store'
+import { auth } from './firebase'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import '@/assets/css/main.css'
 
-Vue.use(VueRouter);
+
 Vue.config.productionTip = false
 
-const router = new VueRouter({routes});
+let app
+auth.onAuthStateChanged(user =>  {
+  if (!app) {
+    app = new Vue({
+      router,
+      store,
+      render: h => h(App)
+    }).$mount('#app')
+  }
 
-new Vue({
-    router,
-    render: h => h(App)
-}).$mount('#app');
+  if (user) {
+    store.dispatch('fetchUserProfile', user)
+  }
+})
